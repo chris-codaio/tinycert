@@ -44,6 +44,7 @@ VERSION = '0.1.1'
 
 INSTALL_DEPS = [
     'enum34>=1.1.2',
+    'future>=0.16.0',
     'requests>=2.9.1'
 ]
 

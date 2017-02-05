@@ -2,12 +2,17 @@
 
 This module provides the Session class which wraps an authenticated session with TinyCert's rest API.
 """
+from __future__ import unicode_literals
 
+from future import standard_library
+standard_library.install_aliases()
+from past.builtins import basestring
+from builtins import object
 import collections
 from contextlib import contextmanager
 import hashlib
 import hmac
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import requests
 
@@ -66,7 +71,7 @@ class Session(object):
     def _flatten_array_elements(params):
         """Flattens arrays into numerically indexed entries, further flattening if the array elements are dicts."""
         flattened_params = {}
-        for k, v in params.iteritems():
+        for k, v in params.items():
             if not isinstance(v, (list, tuple)):
                 flattened_params[k] = v
                 continue
@@ -74,7 +79,7 @@ class Session(object):
                 if isinstance(entry, basestring):
                     flattened_params['%s[%i]' % (k, index)] = entry
                 else:
-                    for dk, dv in entry.iteritems():
+                    for dk, dv in entry.items():
                         flattened_params['%s[%i][%s]' % (k, index, dk)] = dv
         return flattened_params
 
@@ -90,11 +95,14 @@ class Session(object):
         ordered_params = collections.OrderedDict(sorted(flattened_params.items()))
 
         # 2. Combine parameters into a URL-encoded query string
-        query_string = urllib.urlencode(ordered_params, True)
+        query_string = urllib.parse.urlencode(ordered_params, True)
 
         # 3. Use SHA256 to calculacte an HMAC digest of the query string, using the API key as the secret.
-        hasher = hmac.new(self._api_key, digestmod=hashlib.sha256)
-        hasher.update(query_string)
+        hasher = hmac.new(
+            self._api_key.encode('utf-8'),
+            digestmod=hashlib.sha256,
+        )
+        hasher.update(query_string.encode('utf-8'))
         hash = hasher.hexdigest()
 
         # 4. Add the signed hash to the query string
