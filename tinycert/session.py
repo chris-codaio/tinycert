@@ -11,8 +11,8 @@ import urllib
 
 import requests
 
-from cert import CertificateApi
-from ca import CertificateAuthorityApi
+from .cert import CertificateApi
+from .ca import CertificateAuthorityApi
 
 
 class NoSessionException(Exception):
