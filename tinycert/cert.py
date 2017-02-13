@@ -1,5 +1,7 @@
 """TinyCert Certificate APIs"""
+from __future__ import unicode_literals
 
+from builtins import object
 from enum import Enum
 
 
