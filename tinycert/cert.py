@@ -5,6 +5,7 @@ from builtins import object
 from enum import Enum
 
 
+# pylint: disable=too-few-public-methods
 class State(Enum):
     """Certificate state enum used for list filtering."""
     expired = 1

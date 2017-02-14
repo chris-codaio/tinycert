@@ -2,17 +2,25 @@
 
 This module provides the Session class which wraps an authenticated session with TinyCert's rest API.
 """
-from __future__ import unicode_literals
 
+# pylint: disable=wrong-import-order,wrong-import-position
+
+from __future__ import unicode_literals
 from future import standard_library
 standard_library.install_aliases()
+
 from past.builtins import basestring
 from builtins import object
 import collections
 from contextlib import contextmanager
 import hashlib
 import hmac
-import urllib.request, urllib.parse, urllib.error
+
+# pylint: disable=import-error
+import urllib.error
+import urllib.parse
+import urllib.request
+# pylint: enable=import-error
 
 import requests
 
@@ -23,6 +31,7 @@ from .ca import CertificateAuthorityApi
 class NoSessionException(Exception):
     """Raised if an attempt is made to use a session without first calling connect()"""
     def __init__(self):
+        Exception.__init__(self)
         self.value = 'Must connect the session first'
 
     def __str__(self):
@@ -31,6 +40,7 @@ class NoSessionException(Exception):
 
 @contextmanager
 def auto_session(api_key, account, passphrase):
+    """Context manager for holding a connected session object within scope."""
     session = Session(api_key)
     session.connect(account, passphrase)
     try:
@@ -55,7 +65,11 @@ class Session(object):
         self._api_key = api_key
         self._session_token = session_token
 
-    def request(self, path, params={}):
+    def request(self, path, params=None):
+        """Make a request via the TinyCert API."""
+        if params is None:
+            params = {}
+
         if self._session_token:
             params['token'] = self._session_token
 
@@ -71,16 +85,16 @@ class Session(object):
     def _flatten_array_elements(params):
         """Flattens arrays into numerically indexed entries, further flattening if the array elements are dicts."""
         flattened_params = {}
-        for k, v in params.items():
-            if not isinstance(v, (list, tuple)):
-                flattened_params[k] = v
+        for key, value in params.items():
+            if not isinstance(value, (list, tuple)):
+                flattened_params[key] = value
                 continue
-            for index, entry in enumerate(v):
+            for index, entry in enumerate(value):
                 if isinstance(entry, basestring):
-                    flattened_params['%s[%i]' % (k, index)] = entry
+                    flattened_params['%s[%i]' % (key, index)] = entry
                 else:
-                    for dk, dv in entry.items():
-                        flattened_params['%s[%i][%s]' % (k, index, dk)] = dv
+                    for dict_key, dict_value in entry.items():
+                        flattened_params['%s[%i][%s]' % (key, index, dict_key)] = dict_value
         return flattened_params
 
     def _sign_request_payload(self, params):
@@ -121,6 +135,7 @@ class Session(object):
         self.request('disconnect')
         self._session_token = None
 
+    # pylint: disable=invalid-name
     @property
     def ca(self):
         """Retrieve the CertificateAuthority API wrapper."""
