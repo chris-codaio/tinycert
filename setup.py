@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 TinyCert
 --------
@@ -48,10 +49,15 @@ INSTALL_DEPS = [
     'requests>=2.9.1'
 ]
 
+SETUP_DEPS = [
+    'pytest-runner',
+    'pytest-pylint',
+]
+
 TEST_DEPS = [
     'mock>=1.3.0',
-    'nose>=1.3.7',
     'pylint>=1.5.5',
+    'pytest>=3.0.6',
     'requests-mock>=0.7.0'
 ]
 
@@ -63,13 +69,12 @@ setup(
     author='Christopher Eck',
     author_email='chrisleck@gmail.com',
     url='https://github.com/chrisleck/tinycert',
-    bugtrack_url='https://github.com/chrisleck/tinycert/issues',
     license='MIT',
     long_description=__doc__,
     packages=['tinycert'],
     install_requires=INSTALL_DEPS,
+    setup_requires=SETUP_DEPS,
     tests_require=TEST_DEPS,
-    test_suite='nose.collector',
     platforms='any',
     zip_safe=True,
     classifiers=[
